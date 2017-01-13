@@ -2,12 +2,11 @@
 
 class RestApi {
 	private $CI;
-    private $my_session;
 
 	public function __construct()
 	{
 		$this->CI = & get_instance();
-		$this->my_session = $this->CI->load->library('session');
+		$this->CI->load->library('session');
 	}
 
 	/**
@@ -18,7 +17,7 @@ class RestApi {
      public function call($method, $path, $fields=array(), $url_domain='api_url')
     {
 
-		$access_token=$this->my_session->userdata('token');
+		$access_token=$this->CI->session->userdata('token');
 
     	$url = $this->CI->config->item($url_domain).$path;
     	if(strtolower($method)=='get'){

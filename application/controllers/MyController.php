@@ -13,10 +13,10 @@ class MyController extends CI_Controller{
         $this->load->library('session');
         $this->load->helper('url');
 
-        
-        if(!isset($username) && !strstr(current_url(),'login')) {
+        $user_name = $this->session->userdata('user_name');
+        if(!isset($user_name) && !strstr(current_url(),'login')) {
             $address = $_SERVER["REQUEST_URI"];
-            redirect("/login?return_url={$address}");
+            redirect("../login?return_url={$address}");
         }
     }
 }

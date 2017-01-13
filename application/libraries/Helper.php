@@ -101,10 +101,9 @@ class Helper {
      */
     public function getInput($params)
     {
-        $return_value = $this->input->post($params);
-
+        $return_value = $this->CI->input->post($params);
         if(empty($return_value)){
-            $return_value = $this->input->get($params);
+            $return_value = $this->CI->input->get($params);
         }
 
         return $return_value;
