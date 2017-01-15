@@ -7,7 +7,7 @@ class Login extends MyController
     {
         parent::__construct();
 
-        $this->load->library(['session', 'helper', 'restApi', 'form_validation']);
+        $this->load->library(['session', 'helper', 'restApi', 'form_validation', 'email']);
         $this->load->helper(['url', 'form']);
 
     }
@@ -35,6 +35,9 @@ class Login extends MyController
                 if($check_result){
                     //判断是否指定回调url,如果指定了return_url则重定向指定的控制器中，否则进入首页
                     $return_url = $this->helper->getInput('return_url');
+
+                    $this->helper->log("登录url：".$return_url);
+
                     if(!empty($return_url) && $return_url != '/' && $return_url != '/index.php'){//进入首页
                         redirect('..'.$return_url);
                     }else{
@@ -68,16 +71,13 @@ class Login extends MyController
      */
     public function checkLogin($user_name,$pass_word)
     {
-        $result = $this->restapi->call(
-            "post", '/admin/login',
+        $result = $this->helper->post('/admin/login',
             array(
                 'user_name' => $user_name,
                 'pass_word' => $pass_word
             ));
 
         $this->helper->log($result);
-        $result = json_decode($result,true);
-
         $this->helper->log($result);
         $this->helper->log(base_url());
 
@@ -99,7 +99,7 @@ class Login extends MyController
     }
 
     /**
-     * 退出登录清楚cookies
+     * 退出登录清除cookies
      */
     public function logout()
     {
@@ -127,4 +127,130 @@ class Login extends MyController
 
         return $return_url;
     }
+
+    public function seek()
+    {
+        $method = $this->helper->getMethod();
+        $data_view = array();
+
+        if($method == 'post'){
+
+            $this->form_validation->set_rules([
+                ['field' => 'username', 'rules' => 'required', 'errors' => ['required' => '登录名称不能为空']],
+                ['field' => 'email', 'rules' => 'required|valid_email', 'errors' => ['required' => '登录邮箱不能为空', 'valid_email' => '邮箱格式不正确']],
+            ]);
+
+            if($this->form_validation->run()){
+
+                $user_name = $this->helper->getInput('username');
+                $email = $this->helper->getInput('email');
+
+                //验证用户名和邮箱是否匹配
+                //若匹配则转到重置密码的界面，否则显示错误提示信息
+                $check_result = $this->helper->post('/admin/checkEmail', ['user_name' => $user_name, 'email' => $email]);
+
+                $this->helper->log($check_result);
+
+                if ($check_result['result'] == 'ok'){
+
+                    $token = isset($check_result['token']) ? $check_result['token'] : '';
+                    $timestamp = isset($check_result['timestamp']) ? $check_result['timestamp'] : 0;
+
+                    $send_result = $this->sendEmail($user_name, $token, $timestamp);
+                    if($send_result){
+
+                        $info = '重置密码邮件已发送';
+
+                    }else{
+
+                        $info = '重置密码邮件发送失败';
+
+                    }
+
+                    $data_view = array('info' => $info);
+
+                }else {
+
+                    $info = isset($check_result['error_info']) ? $check_result['error_info'] : '后台验证错误';
+                    $data_view = array('info' => $info);
+
+                }
+            }
+        }
+
+        $this->load->view('seekpassword', $data_view);
+    }
+
+    /**
+     * @param string $user_name 登录用户名
+     * @param string $token 根据用户名和email获取的用户token信息
+     * @param int $timestamp 用户进行密码找回时的时间戳
+     * @return bool 是否成功发送邮件
+     */
+    public function sendEmail($user_name, $token, $timestamp)
+    {
+
+        $this->email->set_newline("\r\n");
+        $this->email->from('m1173216325@163.com', 'zysun');
+        $this->email->to('m1173216325@163.com');
+
+        $this->email->subject('密码找回');
+
+        $email_message = $this->load->view('email', ['user_name' => $user_name, 'timestamp' => $timestamp, 'token' => $token] ,true);
+        $this->email->message($email_message);
+        $this->email->set_alt_message('This is the alternative message');
+//        $this->email->print_debugger();
+        return $this->email->send();
+
+    }
+
+    public function resetPassWord($token, $timestamp)
+    {
+
+        $method = $this->helper->getMethod();
+
+        if($method == 'post'){
+
+            //1、设置验证规则，获取新密码,根据token重置密码
+            $this->form_validation->set_rules([
+                ['field' => 'token', 'rules' => 'required', 'errors' => ['required' => 'token不能为空']],
+                ['field' => 'password', 'rules' => 'required', 'errors' => ['required' => '密码不能为空']],
+                ['field' => 'passwordconfirm', 'rules' => 'required|matches[password]', 'errors' => ['required' => '确认密码不能为空', 'match' => '密码不一致']],
+            ]);
+
+            $token = $this->helper->getInput('token');
+            $password = $this->helper->getInput('password');
+
+            $result = $this->helper->post('/admin/resetPassword', array('token' => $token, 'pass_word' => $password));
+
+            $data_view = array('info' => '密码重置失败');
+
+            if($result['result'] == 'ok'){
+
+                $data_view = array('info' => '密码重置成功，请重新登录');
+
+            }elseif($result['error_info']){
+
+                $data_view = array('info' => $result['error_info']);
+
+            }
+
+            $this->load->view('seekpassword', $data_view);
+        }else{
+
+            //验证重置密码链接是否过期，加载重置重置密码视图文件
+            $time = time();
+            if($time - $timestamp > 300){
+
+                $this->load->view('seekpassword', array('info' => '重置密码链接已过期'));
+
+            }else{
+
+                $this->load->view('changepass', array('token' => $token));
+
+            }
+
+        }
+    }
+
 }

@@ -140,7 +140,7 @@
                 </a>
             </li>
             <li class="settings hidden-phone">
-                <a href="/index.php?r=admin%2Fpublic%2Flogout" role="button">
+                <a href="../Login/logout" role="button">
                     <i class="icon-share-alt"></i>
                 </a>
             </li>
@@ -157,7 +157,7 @@
                 <div class="arrow"></div>
                 <div class="arrow_border"></div>
             </div>
-            <a href="index.html">
+            <a href="../Facade">
                 <i class="icon-home"></i>
                 <span>后台首页</span>
             </a>

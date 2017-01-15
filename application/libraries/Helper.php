@@ -87,7 +87,7 @@ class Helper {
             $WEB_ROOT = '/';
         }
         $WEB_ROOT = str_replace("\\", "/", $WEB_ROOT);
-        return $WEB_ROOT; 
+        return $WEB_ROOT;
     } 
     
     
@@ -107,6 +107,16 @@ class Helper {
         }
 
         return $return_value;
+    }
+
+    /**
+     * #返回http的请求method名称：get/GET/post/POST
+     * @param bool $upper_case 是否以大写方式返回的method方法名
+     * @return string get/GET/post/POST
+     */
+    public function getMethod($upper_case = false)
+    {
+        return $this->CI->input->method($upper_case);
     }
 
 }

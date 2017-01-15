@@ -29,10 +29,16 @@
             <div class="span4 box">
                 <div class="content-wrap">
                     <h6> Flight and CodeIgnite </h6>
+                    <p><?php if(isset($info)) echo $info ?></p>
                     <p><?php echo form_error('username');?></p>
                     <input type="text" class="span12" name="username" id='username' value="<?php echo set_value('username'); ?>" placeholder="用户名"/>
                     <p><?php echo form_error('password');?></p>
                     <input type="password" class="span12" name="password" id="password" placeholder="用户名密码"/>
+                    <div class="remember">
+                        <?php echo form_checkbox(['id' => 'remember-me'], 'accept', TRUE);?>
+                        <label for="remember-me">记住我</label>
+                        <?php echo anchor('../login/seek', '忘记密码', 'class="forgot"') ;?>
+                    </div>
                 </div>
                 <input type="hidden" name="return_url" value="<?php if(isset($return_url)) echo "{$return_url}"; ?>" />
                 <input type="hidden" name="act" value="sign_in" />
