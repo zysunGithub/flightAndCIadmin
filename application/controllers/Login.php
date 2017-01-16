@@ -204,7 +204,7 @@ class Login extends MyController
 
     }
 
-    public function resetPassWord($token, $timestamp)
+    public function resetPassWord($token = '', $timestamp = 0)
     {
 
         $method = $this->helper->getMethod();
@@ -215,37 +215,45 @@ class Login extends MyController
             $this->form_validation->set_rules([
                 ['field' => 'token', 'rules' => 'required', 'errors' => ['required' => 'token不能为空']],
                 ['field' => 'password', 'rules' => 'required', 'errors' => ['required' => '密码不能为空']],
-                ['field' => 'passwordconfirm', 'rules' => 'required|matches[password]', 'errors' => ['required' => '确认密码不能为空', 'match' => '密码不一致']],
+                ['field' => 'passwordconfirm', 'rules' => 'required|matches[password]', 'errors' => ['required' => '确认密码不能为空', 'matches' => '密码不一致']],
             ]);
 
-            $token = $this->helper->getInput('token');
-            $password = $this->helper->getInput('password');
 
-            $result = $this->helper->post('/admin/resetPassword', array('token' => $token, 'pass_word' => $password));
+            $data_view = array();
 
-            $data_view = array('info' => '密码重置失败');
+            if($this->form_validation->run()){
 
-            if($result['result'] == 'ok'){
+                $token = $this->helper->getInput('token');
+                $password = $this->helper->getInput('password');
 
-                $data_view = array('info' => '密码重置成功，请重新登录');
+                $result = $this->helper->post('/admin/resetPassword', array('token' => $token, 'pass_word' => md5($password)));
 
-            }elseif($result['error_info']){
+                $data_view = array('info' => '密码重置失败');
 
-                $data_view = array('info' => $result['error_info']);
+                if($result['result'] == 'ok'){
+
+                    $data_view = array('info' => '密码重置成功，请重新登录');
+
+                }elseif($result['error_info']){
+
+                    $data_view = array('info' => $result['error_info']);
+
+                }
 
             }
 
-            $this->load->view('seekpassword', $data_view);
+            $this->load->view('changepass', $data_view);
         }else{
 
             //验证重置密码链接是否过期，加载重置重置密码视图文件
             $time = time();
-            if($time - $timestamp > 300){
+            if($time - $timestamp > 3000){
 
                 $this->load->view('seekpassword', array('info' => '重置密码链接已过期'));
 
             }else{
 
+//                var_dump($token);die();
                 $this->load->view('changepass', array('token' => $token));
 
             }

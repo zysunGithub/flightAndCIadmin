@@ -33,13 +33,13 @@
                 <?php if(isset($info)) echo $info; ?>
 
                 <?php echo form_error('token'); ?>
-                <?php echo form_input(['id' => 'token', 'type' => 'hidden', 'name' => 'token', 'value' => set_value('token', $token)]); ?>
+                <?php echo form_input(['id' => 'token', 'type' => 'hidden', 'name' => 'token', 'value' => set_value('token', (isset($token) ? $token : ''))]); ?>
 
                 <?php echo form_error('password'); ?>
-                <?php echo form_input(['id' => 'password', 'name' => 'password', 'class' => 'span12', 'value' => set_value('password'), 'placeholder' => '新密码']); ?>
+                <?php echo form_input(['id' => 'password', 'type' => 'password', 'name' => 'password', 'class' => 'span12', 'value' => set_value('password'), 'placeholder' => '新密码']); ?>
 
                 <?php echo form_error('passwordconfirm'); ?>
-                <?php echo form_input(['id' => 'passwordconfirm', 'name' => 'passwordconfirm', 'class' => 'span12', 'value' => set_value('passwordconfirm'), 'placeholder' => '确认密码']); ?>
+                <?php echo form_input(['id' => 'passwordconfirm', 'type' => 'password', 'name' => 'passwordconfirm', 'class' => 'span12', 'value' => set_value('passwordconfirm'), 'placeholder' => '确认密码']); ?>
 
                 <?php echo anchor('../login', '返回登录', ['class' => 'forgot']) ;?>
             </div>
