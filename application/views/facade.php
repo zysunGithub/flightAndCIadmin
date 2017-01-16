@@ -130,7 +130,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="/index.php?r=admin%2Fmanage%2Fchangeemail">个人信息管理</a></li>
-                    <li><a href="/index.php?r=admin%2Fmanage%2Fchangepass">修改密码</a></li>
+                    <li><?php echo anchor("../login/changePassword", '修改密码'); ?></li>
                     <li><a href="#">订单管理</a></li>
                 </ul>
             </li>

@@ -119,6 +119,11 @@ class Helper {
         return $this->CI->input->method($upper_case);
     }
 
+    public function getServer($param)
+    {
+        return $this->CI->input->server($param);
+    }
+
 }
 
  

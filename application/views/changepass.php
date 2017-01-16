@@ -28,7 +28,7 @@
     <div class="span4 box">
         <?php echo form_open('../login/resetPassword'); ?>
             <div class="content-wrap">
-                <h6>Fight and CodeIgnite - 密码重置</h6>
+                <h6>Fight and CodeIgnite - 密码修改</h6>
 
                 <?php if(isset($info)) echo $info; ?>
 

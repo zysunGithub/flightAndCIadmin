@@ -204,6 +204,11 @@ class Login extends MyController
 
     }
 
+    /**
+     * #根据token修改密码
+     * @param string $token
+     * @param int $timestamp
+     */
     public function resetPassWord($token = '', $timestamp = 0)
     {
 
@@ -247,13 +252,12 @@ class Login extends MyController
 
             //验证重置密码链接是否过期，加载重置重置密码视图文件
             $time = time();
-            if($time - $timestamp > 3000){
+            if($time - $timestamp > 300){
 
                 $this->load->view('seekpassword', array('info' => '重置密码链接已过期'));
 
             }else{
 
-//                var_dump($token);die();
                 $this->load->view('changepass', array('token' => $token));
 
             }
@@ -261,4 +265,12 @@ class Login extends MyController
         }
     }
 
+
+    public function changePassword()
+    {
+        $timestamp = time();
+        $token = $this->session->token;
+
+        $this->resetPassWord($token, $timestamp);
+    }
 }
